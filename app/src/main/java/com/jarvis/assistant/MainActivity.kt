@@ -58,7 +58,7 @@ class MainActivity : ComponentActivity() {
             MaterialTheme(colorScheme = darkColorScheme(primary = Color(0xFF5C6BC0))) {
                 Surface(modifier = Modifier.fillMaxSize(), color = Color(0xFF0A0F1E)) {
                     Column(modifier = Modifier.fillMaxSize().padding(20.dp)) {
-                        Row(verticalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
+                        Row(horizontalArrangement = Arrangement.End, verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
                             Column(Modifier.weight(1f)) {
                                 Text("JARVIS", style = MaterialTheme.typography.headlineLarge, color = Color.White)
                                 Text(

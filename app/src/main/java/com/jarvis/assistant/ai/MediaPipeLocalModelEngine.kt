@@ -3,12 +3,8 @@ package com.jarvis.assistant.ai
 import android.content.Context
 import com.google.mediapipe.tasks.genai.llminference.LlmInference
 import com.google.mediapipe.tasks.genai.llminference.LlmInference.LlmInferenceOptions
-import com.google.mediapipe.tasks.genai.llminference.LlmInferenceSession
-import com.google.mediapipe.tasks.genai.llminference.LlmInferenceSession.LlmInferenceSessionOptions
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
-import kotlin.coroutines.resume
 
 /**
  * Real offline LLM inference via MediaPipe's LlmInference task (llama.cpp/XNNPACK
@@ -27,7 +23,6 @@ class MediaPipeLocalModelEngine(
 ) : LocalModelEngine {
 
     private var llmInference: LlmInference? = null
-    private var session: LlmInferenceSession? = null
 
     override suspend fun isInstalled(): Boolean = modelManager.isModelInstalled()
 
@@ -46,20 +41,13 @@ class MediaPipeLocalModelEngine(
             val options = LlmInferenceOptions.builder()
                 .setModelPath(modelManager.modelPath())
                 .setMaxTokens(512)
-                .setMaxTopK(40)
+                .setTopK(40)
+                .setTemperature(0.4f)
                 .build()
             llmInference = LlmInference.createFromOptions(context, options)
-            session = LlmInferenceSession.createFromOptions(
-                llmInference,
-                LlmInferenceSessionOptions.builder()
-                    .setTemperature(0.4f)
-                    .setTopK(40)
-                    .build()
-            )
             true
         } catch (e: Exception) {
             llmInference = null
-            session = null
             false
         }
     }
@@ -67,21 +55,11 @@ class MediaPipeLocalModelEngine(
     override suspend fun classifyOrAnswer(utterance: String, context: List<String>): String? =
         withContext(Dispatchers.Default) {
             if (!ensureLoaded()) return@withContext null
-            val activeSession = session ?: return@withContext null
+            val activeInference = llmInference ?: return@withContext null
 
             val prompt = buildPrompt(utterance, context)
             try {
-                suspendCancellableCoroutine { cont ->
-                    val builder = StringBuilder()
-                    activeSession.addQueryChunk(prompt)
-                    activeSession.generateResponseAsync { partial, done ->
-                        builder.append(partial)
-                        if (done && cont.isActive) {
-                            cont.resume(builder.toString().trim().ifBlank { null })
-                        }
-                    }
-                    cont.invokeOnCancellation { /* MediaPipe session cleans up on close() */ }
-                }
+                activeInference.generateResponse(prompt).trim().ifBlank { null }
             } catch (e: Exception) {
                 null
             }
@@ -100,9 +78,7 @@ class MediaPipeLocalModelEngine(
     }
 
     fun release() {
-        session?.close()
         llmInference?.close()
-        session = null
         llmInference = null
     }
 }

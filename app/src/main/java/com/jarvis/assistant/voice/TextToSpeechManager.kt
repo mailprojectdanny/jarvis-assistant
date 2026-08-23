@@ -13,7 +13,7 @@ class TextToSpeechManager(context: Context, private val onDone: (utteranceId: St
     private var ready = false
     private var pendingText: String? = null
 
-    private val tts = TextToSpeech(context) { status ->
+    private var tts: TextToSpeech? = TextToSpeech(context) { status ->
         ready = status == TextToSpeech.SUCCESS
         if (ready) {
             tts?.language = Locale.getDefault()
@@ -29,8 +29,6 @@ class TextToSpeechManager(context: Context, private val onDone: (utteranceId: St
             override fun onError(utteranceId: String?) {}
         })
     }
-
-    private var tts: TextToSpeech? = tts
 
     fun speak(text: String) {
         if (!ready) { pendingText = text; return }
