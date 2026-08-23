@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Outer ring -->
+    <path
+        android:pathData="M54,24 A30,30 0 1 1 53.9,24"
+        android:strokeColor="#5C6BC0"
+        android:strokeWidth="6"
+        android:fillColor="#00000000" />
+    <!-- Simple center waveform bars, evoking voice/audio -->
+    <path
+        android:pathData="M44,44 L44,64"
+        android:strokeColor="#8C9EFF"
+        android:strokeWidth="6"
+        android:strokeLineCap="round" />
+    <path
+        android:pathData="M54,36 L54,72"
+        android:strokeColor="#8C9EFF"
+        android:strokeWidth="6"
+        android:strokeLineCap="round" />
+    <path
+        android:pathData="M64,44 L64,64"
+        android:strokeColor="#8C9EFF"
+        android:strokeWidth="6"
+        android:strokeLineCap="round" />
+</vector>

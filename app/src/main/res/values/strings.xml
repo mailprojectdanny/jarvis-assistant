@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">JARVIS</string>
+    <string name="accessibility_service_description">Lets JARVIS read and act on the current screen only when you explicitly ask (e.g. "What is this?", "Click the search button"). Nothing is captured passively or sent off-device.</string>
+</resources>

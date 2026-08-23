@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Voice -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+
+    <!-- Background listening / foreground service -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
+    <!-- Overlay ("Show me") -->
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+
+    <!-- Phone control -->
+    <uses-permission android:name="android.permission.CALL_PHONE" />
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
+    <uses-permission android:name="android.permission.SEND_SMS" />
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+
+    <!-- Network only used for optional DeepSeek cloud calls + one-time local model download -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+    <!-- Android 11+ package visibility: lets JARVIS enumerate/launch other apps by name
+         ("open Spotify") without the privileged QUERY_ALL_PACKAGES permission, which
+         requires special Play Store justification. This scoped declaration is the
+         legitimate, Google-recommended approach for launcher-style app discovery. -->
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+        </intent>
+    </queries>
+
+    <application
+        android:name=".JarvisApplication"
+        android:allowBackup="false"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:theme="@style/Theme.Jarvis"
+        android:usesCleartextTraffic="false">
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:launchMode="singleTop"
+            android:theme="@style/Theme.Jarvis">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".setup.SetupWizardActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Jarvis" />
+
+        <activity
+            android:name=".settings.SettingsActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Jarvis" />
+
+        <!-- Always-on session service: wake word, STT/TTS orchestration -->
+        <service
+            android:name=".service.JarvisForegroundService"
+            android:exported="false"
+            android:foregroundServiceType="microphone" />
+
+        <!-- "Show me" overlay renderer -->
+        <service
+            android:name=".overlay.OverlayService"
+            android:exported="false" />
+
+        <!-- Notification reading/actions. User must grant Notification Access explicitly
+             in system settings; this is a protected, special-access permission Android
+             requires to be granted manually — it cannot be requested via a normal prompt. -->
+        <service
+            android:name=".notifications.JarvisNotificationListenerService"
+            android:exported="false"
+            android:label="JARVIS Notifications"
+            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
+            <intent-filter>
+                <action android:name="android.service.notification.NotificationListenerService" />
+            </intent-filter>
+        </service>
+
+        <receiver
+            android:name=".tools.ReminderReceiver"
+            android:exported="false" />
+
+        <!-- Optional screen-context understanding. User must enable explicitly in system settings. -->
+        <service
+            android:name=".accessibility.JarvisAccessibilityService"
+            android:exported="false"
+            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
+            <intent-filter>
+                <action android:name="android.accessibilityservice.AccessibilityService" />
+            </intent-filter>
+            <meta-data
+                android:name="android.accessibilityservice"
+                android:resource="@xml/accessibility_service_config" />
+        </service>
+
+    </application>
+</manifest>
