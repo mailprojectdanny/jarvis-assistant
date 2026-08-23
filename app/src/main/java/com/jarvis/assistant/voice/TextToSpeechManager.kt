@@ -13,16 +13,18 @@ class TextToSpeechManager(context: Context, private val onDone: (utteranceId: St
     private var ready = false
     private var pendingText: String? = null
 
-    private var tts: TextToSpeech? = TextToSpeech(context) { status ->
-        ready = status == TextToSpeech.SUCCESS
-        if (ready) {
-            tts?.language = Locale.getDefault()
-            pendingText?.let { speak(it) }
-            pendingText = null
-        }
-    }
+    private var tts: TextToSpeech? = null
 
     init {
+        tts = TextToSpeech(context) { status ->
+            ready = status == TextToSpeech.SUCCESS
+            if (ready) {
+                tts?.language = Locale.getDefault()
+                pendingText?.let { speak(it) }
+                pendingText = null
+            }
+        }
+        
         tts?.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
             override fun onStart(utteranceId: String?) {}
             override fun onDone(utteranceId: String?) { utteranceId?.let(onDone) }
